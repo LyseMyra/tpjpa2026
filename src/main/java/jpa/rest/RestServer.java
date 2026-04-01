@@ -61,12 +61,11 @@ public class RestServer {
 
         // Shutdown hook pour libérer le port proprement à l'arrêt
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("\nArrêt du serveur...");
             server.stop();
-            System.out.println("Serveur arrêté.");
+            System.out.println("Serveur stop");
         }));
 
-        System.out.println("Serveur démarré ! (Ctrl+C pour arrêter)");
+        System.out.println("Serveur start");
 
     }
 }
