@@ -26,12 +26,11 @@ import java.util.List;
  * Contient endpoints CRUD + endpoints métier + documentation OpenAPI
  */
 @Path("/concerts")
-@Tag(name = "Concerts", description = "API de gestion des concerts")
+@Tag(name = "Concerts", description = "Gestion des concerts")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ConcertController {
 
-    // ========== Endpoints CRUD ==========
 
     @GET
     @Operation(

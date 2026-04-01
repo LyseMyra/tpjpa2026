@@ -1,5 +1,6 @@
 package jpa.rest;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.ws.rs.*;
@@ -15,6 +16,7 @@ import java.util.List;
  * Controller REST pour les utilisateurs
  */
 @Path("/utilisateurs")
+@Tag(name = "Utilisateurs", description = "Gestion des utilisateurs")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class UtilisateurController {

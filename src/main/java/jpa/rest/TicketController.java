@@ -1,5 +1,6 @@
 package jpa.rest;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityManager;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -14,6 +15,7 @@ import java.util.List;
  * Controller REST pour les tickets
  */
 @Path("/tickets")
+@Tag(name = "Tickets", description = "Gestion des tickets")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class TicketController {
