@@ -1,3 +1,3 @@
 mkdir data
 cd data
-java -cp ..\hsqldb-2.7.2.jar org.hsqldb.Server
+"C:\Users\yahgn\.jdks\openjdk-25.0.1\bin\java.exe" -cp ..\hsqldb-2.7.2.jar org.hsqldb.Server

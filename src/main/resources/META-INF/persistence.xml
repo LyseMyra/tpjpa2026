@@ -6,6 +6,16 @@
 
 	<persistence-unit name="dev" transaction-type="RESOURCE_LOCAL">
 		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+		<!-- Lister toutes les entités -->
+		<class>jpa.entity.Concert</class>
+		<class>jpa.entity.Utilisateur</class>
+		<class>jpa.entity.Organisateur</class>
+		<class>jpa.entity.Ticket</class>
+		<class>jpa.entity.TicketStandard</class>
+		<class>jpa.entity.TicketPremium</class>
+		<class>jpa.entity.TicketLastMinute</class>
+		<class>jpa.entity.Employee</class>
+		<class>jpa.entity.Department</class>
 		<properties>
 			<property name="jakarta.persistence.jdbc.driver"
 				value="org.hsqldb.jdbcDriver" />
@@ -23,6 +33,16 @@
 	</persistence-unit>
 	<persistence-unit name="prod" transaction-type="RESOURCE_LOCAL">
 		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+		<!-- Lister toutes les entités -->
+		<class>jpa.entity.Concert</class>
+		<class>jpa.entity.Utilisateur</class>
+		<class>jpa.entity.Organisateur</class>
+		<class>jpa.entity.Ticket</class>
+		<class>jpa.entity.TicketStandard</class>
+		<class>jpa.entity.TicketPremium</class>
+		<class>jpa.entity.TicketLastMinute</class>
+		<class>jpa.entity.Employee</class>
+		<class>jpa.entity.Department</class>
 		<properties>
 			<property name="jakarta.persistence.jdbc.driver"
 				value="org.hsqldb.jdbcDriver" />
