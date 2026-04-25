@@ -5,10 +5,12 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.util.logging.Logger;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 
+@Hidden
 @Path("/api")
 public class SwaggerResource {
 
