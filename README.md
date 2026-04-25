@@ -84,9 +84,9 @@ ConcertDTO : Exposé par l'API au lieu de l'entité brute
 
 
 ### Arreter un processus en cours sur le port
-
-PS C:\Users\yahgn\WebstormProjects\tpjpa2026>  netstat -ano | findstr :8080
+Dans le terminal
+PS \tpjpa>  netstat -ano | findstr :8080
 TCP    0.0.0.0:8080           0.0.0.0:0              LISTENING       21928
 TCP    [::]:8080              [::]:0                 LISTENING       21928
-PS C:\Users\yahgn\WebstormProjects\tpjpa2026>  taskkill /PID 21928 /F
+PS \tpjpa>  taskkill /PID 21928 /F
 Opération réussie: le processus avec PID 21928 a été terminé.

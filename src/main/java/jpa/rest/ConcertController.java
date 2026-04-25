@@ -3,7 +3,9 @@ package jpa.rest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityManager;
@@ -13,10 +15,12 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jpa.EntityManagerHelper;
 import jpa.dao.ConcertDAO;
+import jpa.dao.OrganisateurDAO;
 import jpa.dto.ConcertDTO;
 import jpa.dto.ConcertMapper;
 import jpa.entity.Concert;
 import jpa.entity.Genre;
+import jpa.entity.Organisateur;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -90,6 +94,16 @@ public class ConcertController {
     @Operation(
         summary = "Crée un nouveau concert",
         description = "Crée un nouveau concert avec les informations fournies",
+        requestBody = @RequestBody(
+            required = true,
+            content = @Content(
+                schema = @Schema(implementation = ConcertDTO.class),
+                examples = @ExampleObject(
+                    name = "Exemple concert",
+                    value = "{\"nom\":\"Nuit Electro Paris\",\"artiste\":\"David Guetta\",\"description\":\"Un concert electro exceptionnel\",\"dateConcert\":\"2026-07-14\",\"heureConcert\":\"21:00:00\",\"lieu\":\"Accor Arena\",\"ville\":\"Paris\",\"genre\":\"ELECTRO\",\"prix\":49.99,\"capacite\":5000,\"organisateurId\":1}"
+                )
+            )
+        ),
         responses = {
             @ApiResponse(responseCode = "201", description = "Concert créé avec succès"),
             @ApiResponse(responseCode = "400", description = "Données invalides")
@@ -101,6 +115,24 @@ public class ConcertController {
         try {
             tx.begin();
             Concert concert = ConcertMapper.toEntity(concertDTO);
+
+            // ticketsDisponibles initialisé à capacite lors de la création
+            if (concert.getTicketsDisponibles() == null && concert.getCapacite() != null) {
+                concert.setTicketsDisponibles(concert.getCapacite());
+            }
+
+            // Rattacher l'organisateur depuis la DB
+            if (concertDTO.getOrganisateurId() != null) {
+                Organisateur organisateur = new OrganisateurDAO(em).findById(concertDTO.getOrganisateurId());
+                if (organisateur == null) {
+                    tx.rollback();
+                    return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"error\": \"Organisateur introuvable\"}")
+                        .build();
+                }
+                concert.setOrganisateur(organisateur);
+            }
+
             ConcertDAO dao = new ConcertDAO(em);
             Concert created = dao.create(concert);
             tx.commit();
@@ -121,6 +153,16 @@ public class ConcertController {
     @Operation(
         summary = "Met à jour un concert",
         description = "Met à jour les informations d'un concert existant",
+        requestBody = @RequestBody(
+            required = true,
+            content = @Content(
+                schema = @Schema(implementation = ConcertDTO.class),
+                examples = @ExampleObject(
+                    name = "Exemple mise a jour",
+                    value = "{\"nom\":\"Nuit Electro Paris - Edition Speciale\",\"artiste\":\"David Guetta\",\"description\":\"Edition speciale avec DJ set exclusif\",\"dateConcert\":\"2026-07-14\",\"heureConcert\":\"22:00:00\",\"lieu\":\"Accor Arena\",\"ville\":\"Paris\",\"genre\":\"ELECTRO\",\"prix\":59.99,\"capacite\":5000}"
+                )
+            )
+        ),
         responses = {
             @ApiResponse(responseCode = "200", description = "Concert mis à jour"),
             @ApiResponse(responseCode = "404", description = "Concert non trouvé")

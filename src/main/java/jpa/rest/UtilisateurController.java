@@ -1,5 +1,11 @@
 package jpa.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
@@ -50,6 +56,25 @@ public class UtilisateurController {
     }
 
     @POST
+    @Operation(
+        summary = "Crée un nouvel utilisateur",
+        description = "Crée un nouvel utilisateur. La dateInscription est générée automatiquement.",
+        requestBody = @RequestBody(
+            required = true,
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = Utilisateur.class),
+                examples = @ExampleObject(
+                    name = "Exemple utilisateur",
+                    value = "{\"email\":\"jean.dupont@email.com\",\"motDePasse\":\"motdepasse123\",\"nom\":\"Dupont\",\"prenom\":\"Jean\",\"telephone\":\"0612345678\"}"
+                )
+            )
+        ),
+        responses = {
+            @ApiResponse(responseCode = "201", description = "Utilisateur créé avec succès"),
+            @ApiResponse(responseCode = "400", description = "Données invalides")
+        }
+    )
     public Response createUtilisateur(Utilisateur utilisateur) {
         EntityManager em = EntityManagerHelper.getEntityManager();
         EntityTransaction tx = em.getTransaction();

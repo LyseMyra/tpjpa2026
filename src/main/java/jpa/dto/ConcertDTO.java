@@ -1,5 +1,7 @@
 package jpa.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jpa.entity.Genre;
 
 import java.math.BigDecimal;
@@ -12,20 +14,37 @@ import java.time.LocalTime;
  */
 public class ConcertDTO {
 
+    @Schema(example = "1", accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
+    @Schema(example = "Nuit Électro Paris")
     private String nom;
+    @Schema(example = "David Guetta")
     private String artiste;
+    @Schema(example = "Un concert électro exceptionnel au cœur de Paris")
     private String description;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @Schema(example = "2026-07-14", type = "string", format = "date")
     private LocalDate dateConcert;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
+    @Schema(example = "21:00:00", type = "string")
     private LocalTime heureConcert;
+    @Schema(example = "Accor Arena")
     private String lieu;
+    @Schema(example = "Paris")
     private String ville;
+    @Schema(example = "ELECTRO")
     private Genre genre;
+    @Schema(example = "49.99")
     private BigDecimal prix;
+    @Schema(example = "5000")
     private Integer capacite;
+    @Schema(example = "4850", accessMode = Schema.AccessMode.READ_ONLY)
     private Integer ticketsDisponibles;
+    @Schema(example = "https://example.com/images/concert.jpg")
     private String image;
+    @Schema(example = "3")
     private Long organisateurId;
+    @Schema(example = "Live Nation France", accessMode = Schema.AccessMode.READ_ONLY)
     private String organisateurNom;
 
     // Constructeurs

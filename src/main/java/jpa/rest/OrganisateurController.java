@@ -1,5 +1,11 @@
 package jpa.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
@@ -50,6 +56,25 @@ public class OrganisateurController {
     }
 
     @POST
+    @Operation(
+        summary = "Crée un nouvel organisateur",
+        description = "Crée un nouvel organisateur. La dateInscription est générée automatiquement. Le compte nécessite une validation admin (valide=false par défaut).",
+        requestBody = @RequestBody(
+            required = true,
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = Organisateur.class),
+                examples = @ExampleObject(
+                    name = "Exemple organisateur",
+                    value = "{\"email\":\"contact@livenation.fr\",\"motDePasse\":\"motdepasse123\",\"nomOrganisation\":\"Live Nation France\",\"siret\":\"12345678901234\",\"telephone\":\"0140506070\",\"adresse\":\"1 Avenue des Champs-Elysees, 75008 Paris\"}"
+                )
+            )
+        ),
+        responses = {
+            @ApiResponse(responseCode = "201", description = "Organisateur créé avec succès"),
+            @ApiResponse(responseCode = "400", description = "Données invalides")
+        }
+    )
     public Response createOrganisateur(Organisateur organisateur) {
         EntityManager em = EntityManagerHelper.getEntityManager();
         EntityTransaction tx = em.getTransaction();

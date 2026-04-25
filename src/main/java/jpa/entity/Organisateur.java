@@ -1,5 +1,6 @@
 package jpa.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -104,6 +105,7 @@ public class Organisateur {
         this.adresse = adresse;
     }
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Column(nullable = false)
     public LocalDateTime getDateInscription() {
         return dateInscription;

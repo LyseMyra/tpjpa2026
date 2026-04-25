@@ -1,5 +1,6 @@
 package jpa.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -77,6 +78,7 @@ public abstract class Ticket {
         this.prixAchat = prixAchat;
     }
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Column(nullable = false)
     public LocalDateTime getDateAchat() {
         return dateAchat;
