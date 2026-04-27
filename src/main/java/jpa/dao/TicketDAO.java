@@ -5,7 +5,6 @@ import jakarta.persistence.criteria.*;
 import jpa.entity.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +56,6 @@ public class TicketDAO implements GenericDAO<Ticket> {
                 .getSingleResult();
     }
 
-    // ========== Criteria Query (requis par le TP) ==========
 
     /**
      * Recherche de tickets avec des filtres multiples en utilisant Criteria Query
@@ -130,8 +128,6 @@ public class TicketDAO implements GenericDAO<Ticket> {
 
         return em.createQuery(cq).getResultList();
     }
-
-    // ========== Méthodes métier ==========
 
     /**
      * Trouve tous les tickets d'un utilisateur
@@ -215,65 +211,4 @@ public class TicketDAO implements GenericDAO<Ticket> {
                 .getResultList();
     }
 
-    /**
-     * Calcule le revenu total généré par les ventes de tickets
-     * @return Montant total des ventes
-     */
-    public BigDecimal calculerRevenuTotal() {
-        String jpql = "SELECT SUM(t.prixAchat) FROM Ticket t WHERE t.valide = true";
-        BigDecimal revenu = em.createQuery(jpql, BigDecimal.class).getSingleResult();
-        return revenu != null ? revenu : BigDecimal.ZERO;
-    }
-
-    /**
-     * Calcule le revenu pour un concert spécifique
-     * @param concertId ID du concert
-     * @return Montant total des ventes pour ce concert
-     */
-    public BigDecimal calculerRevenuConcert(Long concertId) {
-        String jpql = "SELECT SUM(t.prixAchat) FROM Ticket t WHERE t.concert.id = :concertId AND t.valide = true";
-        BigDecimal revenu = em.createQuery(jpql, BigDecimal.class)
-                .setParameter("concertId", concertId)
-                .getSingleResult();
-        return revenu != null ? revenu : BigDecimal.ZERO;
-    }
-
-    /**
-     * Compte le nombre de tickets par type pour un concert
-     * @param concertId ID du concert
-     * @param typeClass Classe du type de ticket
-     * @return Nombre de tickets de ce type
-     */
-    public long countTicketsByType(Long concertId, Class<? extends Ticket> typeClass) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-        Root<Ticket> ticket = cq.from(Ticket.class);
-
-        cq.select(cb.count(ticket));
-        cq.where(
-            cb.and(
-                cb.equal(ticket.get("concert").get("id"), concertId),
-                cb.equal(ticket.type(), typeClass)
-            )
-        );
-
-        return em.createQuery(cq).getSingleResult();
-    }
-
-    /**
-     * Trouve les tickets achetés dans une période
-     * @param dateDebut Date de début
-     * @param dateFin Date de fin
-     * @return Liste des tickets achetés dans cette période
-     */
-    public List<Ticket> findTicketsByPeriode(LocalDateTime dateDebut, LocalDateTime dateFin) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Ticket> cq = cb.createQuery(Ticket.class);
-        Root<Ticket> ticket = cq.from(Ticket.class);
-
-        cq.where(cb.between(ticket.get("dateAchat"), dateDebut, dateFin));
-        cq.orderBy(cb.desc(ticket.get("dateAchat")));
-
-        return em.createQuery(cq).getResultList();
-    }
 }

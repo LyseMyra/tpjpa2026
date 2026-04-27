@@ -1,6 +1,7 @@
 package jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -113,6 +114,7 @@ public class Utilisateur {
     }
 
     // Relation OneToMany avec Ticket (sera complétée après création de Ticket)
+    @JsonIgnore
     @OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL)
     public List<Ticket> getTickets() {
         return tickets;

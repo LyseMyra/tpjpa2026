@@ -16,6 +16,7 @@ import jpa.EntityManagerHelper;
 import jpa.dao.UtilisateurDAO;
 import jpa.entity.Utilisateur;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,7 +36,7 @@ public class UtilisateurController {
             List<Utilisateur> users = dao.findAll();
             return Response.ok(users).build();
         } finally {
-            em.close();
+            EntityManagerHelper.closeEntityManager();
         }
     }
 
@@ -51,7 +52,7 @@ public class UtilisateurController {
             }
             return Response.ok(user).build();
         } finally {
-            em.close();
+            EntityManagerHelper.closeEntityManager();
         }
     }
 
@@ -88,7 +89,7 @@ public class UtilisateurController {
             if (tx.isActive()) tx.rollback();
             return Response.status(Response.Status.BAD_REQUEST).entity("{\"error\": \"" + e.getMessage() + "\"}").build();
         } finally {
-            em.close();
+            EntityManagerHelper.closeEntityManager();
         }
     }
 
@@ -102,9 +103,10 @@ public class UtilisateurController {
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            return Response.ok(user.getTickets()).build();
+            List<jpa.entity.Ticket> tickets = new ArrayList<>(user.getTickets());
+            return Response.ok(tickets).build();
         } finally {
-            em.close();
+            EntityManagerHelper.closeEntityManager();
         }
     }
 }

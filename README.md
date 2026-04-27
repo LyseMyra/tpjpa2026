@@ -42,39 +42,30 @@ Utilisateur - Ticket : Un utilisateur peut acheter plusieurs tickets
 DAOs implémentent l'interface GenericDAO qui fournit les méthodes CRUD de base
 
 #### ConcertDAO
-Contient :
-- Requêtes JPQL : `findByGenreJPQL()`, `findByPrixRange()`, `findByArtiste()`
-- @NamedQuery : `findByVille()`, `findByGenre()`, `findActifs()`, `findConcertsDisponibles()`
-- Méthodes métier : `reserverTickets()`, `libererTickets()`, `findByDateRange()`, `isConcertComplet()`
+Contient Requêtes JPQL, @NamedQuery, Méthodes métier 
 
 #### TicketDAO
-Contient :
-- Criteria Query : `findByCriteria()`, `findByPrixRange()`
-- Méthodes métier : `annulerTicket()`, `utiliserTicket()`, `calculerRevenuTotal()`, `calculerRevenuConcert()`
-- Requêtes par type : `findTicketsStandard()`, `findTicketsPremium()`, `findTicketsLastMinute()`
+Contient Criteria Query, Méthodes métier, Requêtes par type
 
 #### UtilisateurDAO
-Contient :
-- Recherches : `findByEmail()`, `findByNom()`, `findActifs()`
-- Méthodes métier : `authenticate()`, `countTicketsAchetes()`
+Contient Recherches, Méthodes métier 
 
 #### OrganisateurDAO
-Contient :
-- Recherches : `findByEmail()`, `findBySiret()`, `findValides()`, `findEnAttenteValidation()`
-- Méthodes métier : `valider()`, `authenticate()`, `countConcertsOrganises()`
+Contient, Recherches, Méthodes métier 
+
 
 ## API REST
 
 ### Controllers REST
 Endpoints CRUD
 Endpoints métier : Recherche avec filtres, Vérifier les places disponibles, Réserver des tickets
-Documentation OpenAPI avec annotations `@Operation`, `@Parameter`, `@ApiResponse`
+Documentation OpenAPI
 
 ### DTOs (Data Transfer Objects)
 ConcertDTO : Exposé par l'API au lieu de l'entité brute
 - Évite d'exposer les relations circulaires (problème de sérialisation JSON)
 - Ne contient que les données publiques
-- Mapping entité ↔ DTO via `ConcertMapper`
+
 
 ### Démarrer l'API REST
 1. Démarrer HSQLDB

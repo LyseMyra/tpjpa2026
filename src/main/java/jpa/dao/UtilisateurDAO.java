@@ -17,7 +17,6 @@ public class UtilisateurDAO implements GenericDAO<Utilisateur> {
         this.em = em;
     }
 
-    // ========== Méthodes CRUD de base ==========
 
     @Override
     public Utilisateur create(Utilisateur utilisateur) {
@@ -55,7 +54,6 @@ public class UtilisateurDAO implements GenericDAO<Utilisateur> {
                 .getSingleResult();
     }
 
-    // ========== Méthodes spécifiques ==========
 
     /**
      * Recherche un utilisateur par email
@@ -86,16 +84,6 @@ public class UtilisateurDAO implements GenericDAO<Utilisateur> {
     }
 
     /**
-     * Trouve tous les utilisateurs actifs
-     * @return Liste des utilisateurs actifs
-     */
-    public List<Utilisateur> findActifs() {
-        String jpql = "SELECT u FROM Utilisateur u WHERE u.actif = true ORDER BY u.dateInscription DESC";
-        return em.createQuery(jpql, Utilisateur.class)
-                .getResultList();
-    }
-
-    /**
      * Authentifie un utilisateur
      * @param email Email de l'utilisateur
      * @param motDePasse Mot de passe
@@ -113,15 +101,4 @@ public class UtilisateurDAO implements GenericDAO<Utilisateur> {
         }
     }
 
-    /**
-     * Compte le nombre de tickets achetés par un utilisateur
-     * @param utilisateurId ID de l'utilisateur
-     * @return Nombre de tickets achetés
-     */
-    public long countTicketsAchetes(Long utilisateurId) {
-        String jpql = "SELECT COUNT(t) FROM Ticket t WHERE t.utilisateur.id = :userId";
-        return em.createQuery(jpql, Long.class)
-                .setParameter("userId", utilisateurId)
-                .getSingleResult();
-    }
 }

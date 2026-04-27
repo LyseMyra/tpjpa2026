@@ -1,6 +1,7 @@
 package jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -132,6 +133,7 @@ public class Organisateur {
     }
 
     // Relation OneToMany avec Concert (bidirectionnelle)
+    @JsonIgnore
     @OneToMany(mappedBy = "organisateur", cascade = CascadeType.ALL)
     public List<Concert> getConcerts() {
         return concerts;

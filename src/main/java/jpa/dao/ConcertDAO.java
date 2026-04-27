@@ -1,7 +1,6 @@
 package jpa.dao;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
 import jpa.entity.Concert;
 import jpa.entity.Genre;
 
@@ -21,7 +20,6 @@ public class ConcertDAO implements GenericDAO<Concert> {
         this.em = em;
     }
 
-    // ========== Méthodes CRUD de base ==========
 
     @Override
     public Concert create(Concert concert) {
@@ -59,7 +57,6 @@ public class ConcertDAO implements GenericDAO<Concert> {
                 .getSingleResult();
     }
 
-    // ========== Requêtes JPQL ==========
 
     /**
      * Recherche des concerts par genre (JPQL)
@@ -73,21 +70,6 @@ public class ConcertDAO implements GenericDAO<Concert> {
                 .getResultList();
     }
 
-    /**
-     * Recherche des concerts dans une fourchette de prix (JPQL)
-     * @param prixMin Prix minimum
-     * @param prixMax Prix maximum
-     * @return Liste des concerts dans cette fourchette
-     */
-    public List<Concert> findByPrixRange(BigDecimal prixMin, BigDecimal prixMax) {
-        String jpql = "SELECT c FROM Concert c WHERE c.prix BETWEEN :prixMin AND :prixMax AND c.actif = true";
-        return em.createQuery(jpql, Concert.class)
-                .setParameter("prixMin", prixMin)
-                .setParameter("prixMax", prixMax)
-                .getResultList();
-    }
-
-    // ========== Requêtes nommées (@NamedQuery) ==========
 
     /**
      * Recherche des concerts par ville (utilise @NamedQuery)
@@ -111,16 +93,6 @@ public class ConcertDAO implements GenericDAO<Concert> {
                 .getResultList();
     }
 
-    /**
-     * Trouve tous les concerts actifs (utilise @NamedQuery)
-     * @return Liste des concerts actifs
-     */
-    public List<Concert> findActifs() {
-        return em.createNamedQuery("Concert.findActifs", Concert.class)
-                .getResultList();
-    }
-
-    // ========== Méthodes métier ==========
 
     /**
      * Trouve les concerts disponibles (avec des tickets restants)
@@ -207,19 +179,6 @@ public class ConcertDAO implements GenericDAO<Concert> {
         return em.createQuery(jpql, Concert.class)
                 .setParameter("orgId", organisateurId)
                 .getResultList();
-    }
-
-    /**
-     * Statistiques : nombre de tickets vendus pour un concert
-     * @param concertId ID du concert
-     * @return Nombre de tickets vendus
-     */
-    public int getNombreTicketsVendus(Long concertId) {
-        Concert concert = findById(concertId);
-        if (concert != null) {
-            return concert.getCapacite() - concert.getTicketsDisponibles();
-        }
-        return 0;
     }
 
     /**

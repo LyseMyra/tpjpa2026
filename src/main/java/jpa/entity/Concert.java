@@ -1,5 +1,6 @@
 package jpa.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -196,6 +197,7 @@ public class Concert {
     }
 
     // Relation OneToMany avec Ticket (bidirectionnelle)
+    @JsonIgnore
     @OneToMany(mappedBy = "concert", cascade = CascadeType.ALL)
     public List<Ticket> getTickets() {
         return tickets;

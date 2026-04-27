@@ -16,6 +16,7 @@ import jpa.EntityManagerHelper;
 import jpa.dao.OrganisateurDAO;
 import jpa.entity.Organisateur;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,7 +36,7 @@ public class OrganisateurController {
             List<Organisateur> orgs = dao.findAll();
             return Response.ok(orgs).build();
         } finally {
-            em.close();
+            EntityManagerHelper.closeEntityManager();
         }
     }
 
@@ -51,7 +52,7 @@ public class OrganisateurController {
             }
             return Response.ok(org).build();
         } finally {
-            em.close();
+            EntityManagerHelper.closeEntityManager();
         }
     }
 
@@ -88,7 +89,7 @@ public class OrganisateurController {
             if (tx.isActive()) tx.rollback();
             return Response.status(Response.Status.BAD_REQUEST).entity("{\"error\": \"" + e.getMessage() + "\"}").build();
         } finally {
-            em.close();
+            EntityManagerHelper.closeEntityManager();
         }
     }
 
@@ -102,9 +103,10 @@ public class OrganisateurController {
             if (org == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            return Response.ok(org.getConcerts()).build();
+            List<jpa.entity.Concert> concerts = new ArrayList<>(org.getConcerts());
+            return Response.ok(concerts).build();
         } finally {
-            em.close();
+            EntityManagerHelper.closeEntityManager();
         }
     }
 }

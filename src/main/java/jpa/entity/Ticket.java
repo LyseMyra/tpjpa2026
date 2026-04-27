@@ -1,6 +1,7 @@
 package jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -105,6 +106,7 @@ public abstract class Ticket {
     }
 
     // Relation ManyToOne avec Concert
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "concert_id", nullable = false)
     public Concert getConcert() {
@@ -116,6 +118,7 @@ public abstract class Ticket {
     }
 
     // Relation ManyToOne avec Utilisateur
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "utilisateur_id", nullable = false)
     public Utilisateur getUtilisateur() {

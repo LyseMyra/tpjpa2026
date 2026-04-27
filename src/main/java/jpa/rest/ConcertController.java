@@ -16,11 +16,12 @@ import jakarta.ws.rs.core.Response;
 import jpa.EntityManagerHelper;
 import jpa.dao.ConcertDAO;
 import jpa.dao.OrganisateurDAO;
+import jpa.dao.TicketDAO;
+import jpa.dao.UtilisateurDAO;
 import jpa.dto.ConcertDTO;
 import jpa.dto.ConcertMapper;
-import jpa.entity.Concert;
-import jpa.entity.Genre;
-import jpa.entity.Organisateur;
+import jpa.entity.*;
+import jpa.rest.dto.ReservationRequest;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -56,7 +57,7 @@ public class ConcertController {
             List<ConcertDTO> dtos = ConcertMapper.toDTOList(concerts);
             return Response.ok(dtos).build();
         } finally {
-            em.close();
+            EntityManagerHelper.closeEntityManager();
         }
     }
 
@@ -86,7 +87,7 @@ public class ConcertController {
             ConcertDTO dto = ConcertMapper.toDTO(concert);
             return Response.ok(dto).build();
         } finally {
-            em.close();
+            EntityManagerHelper.closeEntityManager();
         }
     }
 
@@ -144,7 +145,7 @@ public class ConcertController {
                 .entity("{\"error\": \"" + e.getMessage() + "\"}")
                 .build();
         } finally {
-            em.close();
+            EntityManagerHelper.closeEntityManager();
         }
     }
 
@@ -206,7 +207,7 @@ public class ConcertController {
                 .entity("{\"error\": \"" + e.getMessage() + "\"}")
                 .build();
         } finally {
-            em.close();
+            EntityManagerHelper.closeEntityManager();
         }
     }
 
@@ -242,11 +243,9 @@ public class ConcertController {
                 .entity("{\"error\": \"" + e.getMessage() + "\"}")
                 .build();
         } finally {
-            em.close();
+            EntityManagerHelper.closeEntityManager();
         }
     }
-
-    // ========== Endpoints métier ==========
 
     @GET
     @Path("/search")
@@ -301,7 +300,7 @@ public class ConcertController {
                 .entity("{\"error\": \"" + e.getMessage() + "\"}")
                 .build();
         } finally {
-            em.close();
+            EntityManagerHelper.closeEntityManager();
         }
     }
 
@@ -336,56 +335,121 @@ public class ConcertController {
 
             return Response.ok(json).build();
         } finally {
-            em.close();
+            EntityManagerHelper.closeEntityManager();
         }
     }
 
     @POST
     @Path("/{id}/reserver")
     @Operation(
-        summary = "Réserve des tickets pour un concert",
-        description = "Réserve un nombre spécifié de tickets pour un concert",
+        summary = "Réserve un ticket pour un concert",
+        description = "Crée un ticket (STANDARD, PREMIUM ou LAST_MINUTE) lié au concert et à l'utilisateur, et décrémente les places disponibles.",
+        requestBody = @RequestBody(
+            required = true,
+            content = @Content(
+                schema = @Schema(implementation = jpa.rest.dto.ReservationRequest.class),
+                examples = {
+                    @ExampleObject(name = "Standard",    value = "{\"utilisateurId\":1,\"typeTicket\":\"STANDARD\",\"numeroPlace\":\"A12\",\"categorie\":\"Fosse\"}"),
+                    @ExampleObject(name = "Premium",     value = "{\"utilisateurId\":1,\"typeTicket\":\"PREMIUM\",\"numeroPlace\":\"VIP-01\",\"categorie\":\"VIP\",\"accesCoulisses\":true,\"meetAndGreet\":false,\"parkingVIP\":true}"),
+                    @ExampleObject(name = "Last Minute", value = "{\"utilisateurId\":1,\"typeTicket\":\"LAST_MINUTE\",\"pourcentageReduction\":30,\"zoneAcces\":\"Debout uniquement\"}")
+                }
+            )
+        ),
         responses = {
-            @ApiResponse(responseCode = "200", description = "Réservation réussie"),
-            @ApiResponse(responseCode = "400", description = "Réservation impossible"),
-            @ApiResponse(responseCode = "404", description = "Concert non trouvé")
+            @ApiResponse(responseCode = "201", description = "Ticket créé"),
+            @ApiResponse(responseCode = "400", description = "Réservation impossible (plus de places, type invalide…)"),
+            @ApiResponse(responseCode = "404", description = "Concert ou utilisateur introuvable")
         }
     )
-    public Response reserverTickets(
-        @PathParam("id") Long id,
-        @Parameter(description = "Nombre de tickets à réserver") @QueryParam("nombre") int nombre
+    public Response reserverTicket(
+        @PathParam("id") Long concertId,
+        jpa.rest.dto.ReservationRequest req
     ) {
+        if (req == null || req.getUtilisateurId() == null) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                .entity("{\"error\": \"utilisateurId est obligatoire\"}")
+                .build();
+        }
+
+        String type = req.getTypeTicket() != null ? req.getTypeTicket().toUpperCase() : "STANDARD";
+
         EntityManager em = EntityManagerHelper.getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
-            ConcertDAO dao = new ConcertDAO(em);
 
-            Concert concert = dao.findById(id);
+            Concert concert = new ConcertDAO(em).findById(concertId);
             if (concert == null) {
                 tx.rollback();
                 return Response.status(Response.Status.NOT_FOUND)
-                    .entity("{\"error\": \"Concert non trouvé\"}")
+                    .entity("{\"error\": \"Concert introuvable\"}")
                     .build();
             }
 
-            boolean success = dao.reserverTickets(id, nombre);
+            if (concert.getTicketsDisponibles() == null || concert.getTicketsDisponibles() <= 0) {
+                tx.rollback();
+                return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"Plus de tickets disponibles\"}")
+                    .build();
+            }
+
+            Utilisateur utilisateur = new UtilisateurDAO(em).findById(req.getUtilisateurId());
+            if (utilisateur == null) {
+                tx.rollback();
+                return Response.status(Response.Status.NOT_FOUND)
+                    .entity("{\"error\": \"Utilisateur introuvable\"}")
+                    .build();
+            }
+
+            Ticket ticket;
+            switch (type) {
+                case "PREMIUM":
+                    ticket = new TicketPremium(
+                        concert, utilisateur, concert.getPrix(),
+                        req.getNumeroPlace(), req.getCategorie(),
+                        Boolean.TRUE.equals(req.getAccesCoulisses()),
+                        Boolean.TRUE.equals(req.getMeetAndGreet()),
+                        Boolean.TRUE.equals(req.getParkingVIP())
+                    );
+                    break;
+                case "LAST_MINUTE":
+                    int reduction = req.getPourcentageReduction() != null ? req.getPourcentageReduction() : 0;
+                    java.math.BigDecimal prixReduit = concert.getPrix()
+                        .multiply(java.math.BigDecimal.valueOf(100 - reduction))
+                        .divide(java.math.BigDecimal.valueOf(100));
+                    ticket = new TicketLastMinute(
+                        concert, utilisateur, prixReduit,
+                        reduction, req.getZoneAcces()
+                    );
+                    break;
+                case "STANDARD":
+                default:
+                    ticket = new TicketStandard(
+                        concert, utilisateur, concert.getPrix(),
+                        req.getNumeroPlace(), req.getCategorie()
+                    );
+                    break;
+            }
+
+            new TicketDAO(em).create(ticket);
+            concert.setTicketsDisponibles(concert.getTicketsDisponibles() - 1);
+
             tx.commit();
 
-            if (success) {
-                return Response.ok("{\"message\": \"Réservation réussie\", \"ticketsReserves\": " + nombre + "}").build();
-            } else {
-                return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("{\"error\": \"Pas assez de tickets disponibles\"}")
-                    .build();
-            }
+            String json = String.format(
+                "{\"ticketId\":%d,\"numeroTicket\":\"%s\",\"typeTicket\":\"%s\",\"prixAchat\":%s,\"concertId\":%d,\"utilisateurId\":%d}",
+                ticket.getId(), ticket.getNumeroTicket(), ticket.getTypeTicket(),
+                ticket.getPrixAchat(), concertId, req.getUtilisateurId()
+            );
+            return Response.status(Response.Status.CREATED).entity(json).build();
+
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
             return Response.status(Response.Status.BAD_REQUEST)
                 .entity("{\"error\": \"" + e.getMessage() + "\"}")
                 .build();
         } finally {
-            em.close();
+            EntityManagerHelper.closeEntityManager();
         }
     }
 }

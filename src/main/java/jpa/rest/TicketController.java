@@ -28,7 +28,7 @@ public class TicketController {
             List<Ticket> tickets = dao.findAll();
             return Response.ok(tickets).build();
         } finally {
-            em.close();
+            EntityManagerHelper.closeEntityManager();
         }
     }
 
@@ -44,7 +44,7 @@ public class TicketController {
             }
             return Response.ok(ticket).build();
         } finally {
-            em.close();
+            EntityManagerHelper.closeEntityManager();
         }
     }
 
@@ -57,7 +57,7 @@ public class TicketController {
             List<Ticket> tickets = dao.findTicketsByUtilisateur(userId);
             return Response.ok(tickets).build();
         } finally {
-            em.close();
+            EntityManagerHelper.closeEntityManager();
         }
     }
 
@@ -85,7 +85,7 @@ public class TicketController {
                 .entity("{\"error\": \"" + e.getMessage() + "\"}")
                 .build();
         } finally {
-            em.close();
+            EntityManagerHelper.closeEntityManager();
         }
     }
 }

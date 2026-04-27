@@ -17,7 +17,6 @@ public class OrganisateurDAO implements GenericDAO<Organisateur> {
         this.em = em;
     }
 
-    // ========== Méthodes CRUD de base ==========
 
     @Override
     public Organisateur create(Organisateur organisateur) {
@@ -55,23 +54,6 @@ public class OrganisateurDAO implements GenericDAO<Organisateur> {
                 .getSingleResult();
     }
 
-    // ========== Méthodes spécifiques ==========
-
-    /**
-     * Recherche un organisateur par email
-     * @param email L'email de l'organisateur
-     * @return L'organisateur trouvé ou null
-     */
-    public Organisateur findByEmail(String email) {
-        try {
-            String jpql = "SELECT o FROM Organisateur o WHERE o.email = :email";
-            return em.createQuery(jpql, Organisateur.class)
-                    .setParameter("email", email)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
 
     /**
      * Recherche un organisateur par SIRET
@@ -99,30 +81,6 @@ public class OrganisateurDAO implements GenericDAO<Organisateur> {
                 .getResultList();
     }
 
-    /**
-     * Trouve tous les organisateurs en attente de validation
-     * @return Liste des organisateurs en attente
-     */
-    public List<Organisateur> findEnAttenteValidation() {
-        String jpql = "SELECT o FROM Organisateur o WHERE o.valide = false AND o.actif = true ORDER BY o.dateInscription";
-        return em.createQuery(jpql, Organisateur.class)
-                .getResultList();
-    }
-
-    /**
-     * Valide un organisateur
-     * @param organisateurId ID de l'organisateur
-     * @return true si la validation a réussi
-     */
-    public boolean valider(Long organisateurId) {
-        Organisateur org = findById(organisateurId);
-        if (org != null && !org.getValide()) {
-            org.setValide(true);
-            update(org);
-            return true;
-        }
-        return false;
-    }
 
     /**
      * Authentifie un organisateur
